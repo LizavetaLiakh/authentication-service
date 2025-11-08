@@ -13,13 +13,11 @@ import java.util.List;
 public class AdminService {
 
     private final AuthenticationUserRepository repository;
-    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     public AdminService(AuthenticationUserRepository repository, JwtService jwtService,
                         PasswordEncoder passwordEncoder) {
         this.repository = repository;
-        this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
     }
 
