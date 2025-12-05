@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface AuthenticationUserRepository extends JpaRepository<AuthenticationUser, Long> {
 
     Optional<AuthenticationUser> findByUsername(String username);
+    void deleteByUsername(String username);
 
     @Modifying
     @Query(value = "UPDATE authentication_users SET username = :username, password = :password, role = :role " +

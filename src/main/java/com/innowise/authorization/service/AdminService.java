@@ -64,4 +64,12 @@ public class AdminService {
             throw new AuthorizedUserNotFoundException(id);
         }
     }
+
+    public void deleteUserByUsername(String username) {
+        try {
+            repository.deleteByUsername(username);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserWithUsernameNotFoundException(username);
+        }
+    }
 }

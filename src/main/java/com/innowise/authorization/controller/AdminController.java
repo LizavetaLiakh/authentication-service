@@ -55,4 +55,10 @@ public class AdminController {
         adminService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/delete/username/{username}")
+    public ResponseEntity<Void> deleteUserByUsername (@PathVariable String username) {
+        adminService.deleteUserByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
 }
