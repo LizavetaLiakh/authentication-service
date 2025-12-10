@@ -4,6 +4,9 @@ import com.innowise.authorization.entity.AuthenticationUser;
 import com.innowise.authorization.entity.Role;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
@@ -11,6 +14,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
+import java.util.Collections;
 import java.util.Date;
 
 @Service
@@ -47,18 +51,28 @@ public class JwtService {
                 .compact();
     }
 
-    public Jws<Claims> validateToken(String token) {
+    public boolean validateToken(String token) {
+        try {
+            parseToken(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
+    public Claims parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token);
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public AuthenticationUser getUserFromToken(String token) {
-        Claims claims = validateToken(token).getBody();
+        Claims claims = parseToken(token);
         AuthenticationUser user = new AuthenticationUser();
         user.setUsername(claims.getSubject());
-        user.setRole(Enum.valueOf(Role.class, claims.get("role", String.class)));
+        user.setRole(Role.valueOf(claims.get("role", String.class)));
         return user;
     }
 }

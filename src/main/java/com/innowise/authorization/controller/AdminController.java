@@ -47,7 +47,8 @@ public class AdminController {
     public ResponseEntity<AuthenticationUser> updateUser(@PathVariable Long id,
                                                          @RequestBody AuthenticationUser userWithRole) {
         adminService.updateUser(id, userWithRole);
-        return ResponseEntity.ok(userWithRole);
+        AuthenticationUser updatedUser = adminService.getAuthenticatedUserById(id);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/delete/{id}")

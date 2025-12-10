@@ -19,5 +19,5 @@ public interface AuthenticationUserRepository extends JpaRepository<Authenticati
     @Query(value = "UPDATE authentication_users SET username = :username, password = :password, role = :role " +
             "WHERE id = :id", nativeQuery = true)
     int updateUser(@Param("id") Long id, @Param("username") String username, @Param("password") String password
-            , @Param("role") Role role);
+            , @Param("role") String role);
 }

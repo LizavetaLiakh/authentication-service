@@ -7,6 +7,8 @@ import com.innowise.authorization.repository.AuthenticationUserRepository;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
@@ -21,6 +23,7 @@ public class AdminService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public void createUser(AuthenticationUser user) {
         repository.findByUsername(user.getUsername())
                 .ifPresent(sameEmailUser -> {
@@ -44,6 +47,7 @@ public class AdminService {
         return repository.findAll();
     }
 
+    @Transactional
     public void updateUser(Long id, AuthenticationUser user) {
         repository.findByUsername(user.getUsername())
                 .ifPresent(sameUsernameUser -> {
@@ -51,12 +55,14 @@ public class AdminService {
                         throw new UserWithUsernameNotFoundException(user.getUsername());
                     }
                 });
-        int updated = repository.updateUser(id, user.getUsername(), user.getPassword(), user.getRole());
+        int updated = repository.updateUser(id, user.getUsername(), passwordEncoder.encode(user.getPassword()),
+                user.getRole().name());
         if (updated == 0) {
             throw new AuthorizedUserNotFoundException(id);
         }
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         try {
             repository.deleteById(id);
@@ -65,6 +71,7 @@ public class AdminService {
         }
     }
 
+    @Transactional
     public void deleteUserByUsername(String username) {
         try {
             repository.deleteByUsername(username);
