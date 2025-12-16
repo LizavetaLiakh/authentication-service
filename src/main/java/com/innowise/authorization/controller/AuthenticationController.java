@@ -48,4 +48,23 @@ public class AuthenticationController {
     public ResponseEntity<Map<String, String>> refreshToken(@RequestParam String refreshToken) {
         return ResponseEntity.ok(authenticationService.refreshTokens(refreshToken));
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> credentials) {
+        try {
+            String email = credentials.get("email");
+            String password = credentials.get("password");
+            if (email == null || password == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Email and password are required"));
+            }
+
+            Map<String, String> tokens = authenticationService.generateTokens(email, password);
+            return ResponseEntity.ok(tokens);
+        } catch (UserWithEmailNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Unexpected error: " + ex.getMessage()));
+        }
+    }
 }
