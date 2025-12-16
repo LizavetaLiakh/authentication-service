@@ -31,9 +31,9 @@ public class AdminController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/get/username/{username}")
-    public ResponseEntity<AuthenticationUser> getAuthenticatedUserById(@PathVariable String username) {
-        AuthenticationUser user = adminService.getAuthenticatedUserByUsername(username);
+    @GetMapping("/get/email/{email}")
+    public ResponseEntity<AuthenticationUser> getAuthenticatedUserByEmail(@PathVariable String email) {
+        AuthenticationUser user = adminService.getAuthenticatedUserByEmail(email);
         return ResponseEntity.ok(user);
     }
 
@@ -57,9 +57,15 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/delete/username/{username}")
-    public ResponseEntity<Void> deleteUserByUsername (@PathVariable String username) {
-        adminService.deleteUserByUsername(username);
+    @DeleteMapping("/delete/email/{email}")
+    public ResponseEntity<Void> deleteUserByUsername (@PathVariable String email) {
+        adminService.deleteUserByEmail(email);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/internal/delete/username/{username}")
+    public ResponseEntity<Void> deleteUserInternally(@PathVariable String username) {
+        adminService.deleteUserByEmail(username);
         return ResponseEntity.noContent().build();
     }
 }

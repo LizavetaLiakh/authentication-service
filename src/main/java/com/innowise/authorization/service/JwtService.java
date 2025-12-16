@@ -4,17 +4,13 @@ import com.innowise.authorization.entity.AuthenticationUser;
 import com.innowise.authorization.entity.Role;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
-import java.util.Collections;
 import java.util.Date;
 
 @Service
@@ -43,8 +39,9 @@ public class JwtService {
 
     private String buildToken(AuthenticationUser user, long expiration) {
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(user.getEmail())
                 .claim("role", user.getRole().name())
+                .claim("email", user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -71,7 +68,7 @@ public class JwtService {
     public AuthenticationUser getUserFromToken(String token) {
         Claims claims = parseToken(token);
         AuthenticationUser user = new AuthenticationUser();
-        user.setUsername(claims.getSubject());
+        user.setEmail(claims.getSubject());
         user.setRole(Role.valueOf(claims.get("role", String.class)));
         return user;
     }

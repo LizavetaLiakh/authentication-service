@@ -12,12 +12,12 @@ import java.util.Optional;
 
 public interface AuthenticationUserRepository extends JpaRepository<AuthenticationUser, Long> {
 
-    Optional<AuthenticationUser> findByUsername(String username);
-    void deleteByUsername(String username);
+    Optional<AuthenticationUser> findByEmail(String email);
+    void deleteByEmail(String email);
 
     @Modifying
-    @Query(value = "UPDATE authentication_users SET username = :username, password = :password, role = :role " +
+    @Query(value = "UPDATE authentication_users SET email = :email, password = :password, role = :role " +
             "WHERE id = :id", nativeQuery = true)
-    int updateUser(@Param("id") Long id, @Param("username") String username, @Param("password") String password
+    int updateUser(@Param("id") Long id, @Param("email") String email, @Param("password") String password
             , @Param("role") String role);
 }

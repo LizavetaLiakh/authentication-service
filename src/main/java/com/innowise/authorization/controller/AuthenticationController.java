@@ -1,9 +1,10 @@
 package com.innowise.authorization.controller;
 
 import com.innowise.authorization.entity.AuthenticationUser;
-import com.innowise.authorization.entity.Role;
+import com.innowise.authorization.exception.UserWithEmailNotFoundException;
 import com.innowise.authorization.service.AuthenticationService;
 import com.innowise.authorization.service.JwtService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,14 +21,20 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationUser> register(@RequestBody AuthenticationUser user) {
-        authenticationService.saveUser(user);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<String> register(@RequestBody AuthenticationUser user) {
+        try {
+            authenticationService.saveUser(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body("User successfully registered");
+        } catch (UserWithEmailNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + ex.getMessage());
+        }
     }
 
     @PostMapping("/token")
-    public ResponseEntity<Map<String, String>> token(@RequestParam String username, @RequestParam String password) {
-        Map<String, String> tokens = authenticationService.generateTokens(username, password);
+    public ResponseEntity<Map<String, String>> token(@RequestParam String email, @RequestParam String password) {
+        Map<String, String> tokens = authenticationService.generateTokens(email, password);
         return ResponseEntity.ok(tokens);
     }
 
