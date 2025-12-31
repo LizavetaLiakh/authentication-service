@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX uc_authentication_users_username ON authentication_users(username);
