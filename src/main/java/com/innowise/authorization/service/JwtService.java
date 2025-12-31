@@ -4,10 +4,10 @@ import com.innowise.authorization.entity.AuthenticationUser;
 import com.innowise.authorization.entity.Role;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
 import java.security.Key;
@@ -39,26 +39,37 @@ public class JwtService {
 
     private String buildToken(AuthenticationUser user, long expiration) {
         return Jwts.builder()
-                .setSubject(user.getUsername())
+                .setSubject(user.getEmail())
                 .claim("role", user.getRole().name())
+                .claim("email", user.getEmail())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Jws<Claims> validateToken(String token) {
+    public boolean validateToken(String token) {
+        try {
+            parseToken(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+
+    public Claims parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token);
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public AuthenticationUser getUserFromToken(String token) {
-        Claims claims = validateToken(token).getBody();
+        Claims claims = parseToken(token);
         AuthenticationUser user = new AuthenticationUser();
-        user.setUsername(claims.getSubject());
-        user.setRole(Enum.valueOf(Role.class, claims.get("role", String.class)));
+        user.setEmail(claims.getSubject());
+        user.setRole(Role.valueOf(claims.get("role", String.class)));
         return user;
     }
 }

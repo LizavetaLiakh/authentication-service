@@ -2,6 +2,7 @@ package com.innowise.authorization.service;
 
 import com.innowise.authorization.entity.AuthenticationUser;
 import com.innowise.authorization.entity.Role;
+import com.innowise.authorization.exception.UserWithEmailNotFoundException;
 import com.innowise.authorization.repository.AuthenticationUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,14 +25,18 @@ public class AuthenticationService {
     }
 
     public void saveUser(AuthenticationUser user) {
+        repository.findByEmail(user.getEmail())
+                        .ifPresent(existingUser -> {
+                            throw new UserWithEmailNotFoundException(user.getEmail());
+                        });
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
         repository.save(user);
     }
 
-    public Map<String, String> generateTokens(String username, String password) {
-        AuthenticationUser user = repository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User " + username + " not found"));
+    public Map<String, String> generateTokens(String email, String password) {
+        AuthenticationUser user = repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User " + email + " not found"));
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
